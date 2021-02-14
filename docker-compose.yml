@@ -1,0 +1,19 @@
+services:
+  db:
+    container_name: armut_dev_db
+    image: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - /data/db
+  web:
+    build: .
+    command: npm start
+    volumes:
+      - ./app:/code
+    ports:
+      - "3000:3000"
+    environment:
+      DB_URI: "mongodb://armut_dev_db:27017/?readPreference=primary&appname=MongoDB%20Compass&ssl=false"
+    depends_on:
+      - db
