@@ -1,11 +1,21 @@
-#Messaging service
+# Messaging service
 
 All post requests require "Content-Type" header set to "application/json"
 
 run 'docker-compose up' to start the service
 run 'docker-compose -f docker-compose-test up' to test the service. After testing remove the containers with 'docker-compose -f docker-compose-test rm -fsv'. Some test cases require empty database in order to succeed 
 
-#Sign up
+## Sign up
+POST /signup 
+
+example request body:
+
+{
+    "username": "guest",
+    "password": "1234",
+}
+
+## Login
 
 POST /signup 
 
@@ -16,18 +26,7 @@ example request body:
     "password": "1234",
 }
 
-#Login
-
-POST /signup 
-
-example request body:
-
-{
-    "username": "guest",
-    "password": "1234",
-}
-
-#Logout
+## Logout
 
 POST /logout
 
@@ -35,7 +34,7 @@ Requires login
 
 no need for a request body
 
-#Send Message
+## Send Message
 
 POST /sendMessage
 
@@ -48,7 +47,7 @@ example request body:
     "message": "message",
 }
 
-#Ban a User
+## Ban a User
 
 POST /banUser 
 
@@ -60,7 +59,7 @@ example request body:
     "peer": "guest",
 }
 
-#Unban a User
+## Unban a User
 
 POST /unbanUser 
 
@@ -72,7 +71,7 @@ example request body:
     "peer": "guest",
 }
 
-#View past messages 
+## View past messages 
 
 GET /messages
 
