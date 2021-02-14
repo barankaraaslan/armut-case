@@ -7,8 +7,10 @@ var session = require('express-session');
 var indexRouter = require('./routes/index');
 var authRouter = require('./routes/auth');
 var bodyParser = require('body-parser');
+var db = require('./db');
 
 var app = express();
+db.connect();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

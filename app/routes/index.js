@@ -8,12 +8,26 @@ const db = require('../db')
 router.post('/sendMessage', isLoggedIn, async function (req, res) {
   const mongoClient = db.get()
   const database = mongoClient.db('armut')
-  const meessageCollection = database.collection('messages')
+  const userCollection = database.collection('users')
+  const messageCollection = database.collection('messages')
   const banCollection = database.collection('bans')
   let response
   // Invalid request body
   if (!(req.body.peer && req.body.message)) {
-    // res.json('invalid request body')
+    res.json('invalid request body')
+    return
+  }
+  // Check if reciever is self
+  if (req.body.peer === req.session.username) {
+    res.json({success:false, message:'Cant send message to yourself'})
+    return
+  }
+  // Check if reciever exists
+  response = await userCollection.findOne({
+    username: req.body.peer,
+  })
+  if (!response) {
+    res.json({success:false, message:'Cant send message, reciever doesnt exist'})
     return
   }
   // Check if reciever banned sender
@@ -35,7 +49,7 @@ router.post('/sendMessage', isLoggedIn, async function (req, res) {
     return
   }
   // Finally, json message
-  response = await meessageCollection.insertOne(
+  response = await messageCollection.insertOne(
     {
       sender: req.session.username,
       reciever: req.body.peer,
@@ -56,56 +70,84 @@ router.post('/sendMessage', isLoggedIn, async function (req, res) {
 router.post('/unbanUser', isLoggedIn,  async function (req, res) {
   const mongoClient = db.get()
   const database = mongoClient.db('armut')
-  const collection = database.collection('bans')
+  const userCollection = database.collection('users')
+  const banCollection = database.collection('bans')
+  let response
 
+  // Chech request body
   if (!(req.body.peer)) {
     res.json({success:false, message:'invalid request body'})
-  } else {
-  // Check if logged in
-    const response = await collection.findOneAndDelete(
-      {
-        banner: req.session.username,
-        bannee: req.body.peer
-      }
-    )
-
-    if (response.ok === 1) {
-      res.json({success:true, message:'UnBanned user'})
-    } else {
-      res.json({success:false, message:'Couldnt Unban user'})
-      console.error('Couldnt Unban user', response)
+    return
+  }
+  // Check if peer exists
+  response = await userCollection.findOne(
+    {
+      username: req.body.peer
     }
+  )
+  if (!response)
+  {
+    res.json({success:false, message:'User doesnt exist'})
+  }
+  // Try to unban
+  response = await banCollection.findOneAndDelete(
+    {
+      banner: req.session.username,
+      bannee: req.body.peer
+    }
+  )
+  if (response.ok === 1) {
+    res.json({success:true, message:'UnBanned user'})
+  } else {
+    res.json({success:false, message:'Couldnt Unban user'})
+    console.error('Couldnt Unban user', response)
   }
 })
 
 router.post('/banUser', isLoggedIn,  async function (req, res) {
   const mongoClient = db.get()
   const database = mongoClient.db('armut')
-  const collection = database.collection('bans')
+  const banCollection = database.collection('bans')
+  const userCollection = database.collection('users')
   let response
+
+  // Check request body
   if (!(req.body.peer)) {
-    // res.json({success:false, message:'invalid request body'})
-  } else {
-    response = await collection.findOne({
+    res.json({success:false, message:'invalid request body'})
+  } 
+   // Check if peer exists
+  response = await userCollection.findOne(
+    {
+      username: req.body.peer
+    }
+  )
+  if (!response)
+  {
+    res.json({success:false, message:'User doesnt exist'})
+  }
+  
+  // Check If already banned
+  response = await banCollection.findOne({
+    banner: req.session.username,
+    bannee: req.body.peer
+  })
+  if (response) {
+    res.json({success:false, message:'Already banned'})
+    return
+  }
+
+  // Try to ban
+  response = await banCollection.insertOne(
+    {
       banner: req.session.username,
       bannee: req.body.peer
-    })
-    if (response) {
-      res.json({success:false, message:'Already banned'})
-      return
     }
-    response = await collection.insertOne(
-      {
-        banner: req.session.username,
-        bannee: req.body.peer
-      }
-    )
-    if (response.result.ok === 1) {
-      res.json({success:true, message:'Banned user'})
-    } else {
-      res.json({success:false, message:'Couldnt ban user'})
-      console.error('Couldnt ban user', response)
-    }
+  )
+  if (response.result.ok === 1) {
+    res.json({success:true, message:'Banned user'})
+  } else {
+    res.json({success:false, message:'Couldnt ban user'})
+    console.error('Couldnt ban user', response)
   }
 })
 
