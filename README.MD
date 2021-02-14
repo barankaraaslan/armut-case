@@ -1,8 +1,8 @@
-#Messaging service
+# Messaging service
 
 All post requests require "Content-Type" header set to "application/json"
 
-#Sign up
+## Sign up
 
 POST /signup 
 
@@ -13,7 +13,7 @@ example request body:
     "password": "1234",
 }
 
-#Login
+## Login
 
 POST /signup 
 
@@ -24,7 +24,7 @@ example request body:
     "password": "1234",
 }
 
-#Logout
+## Logout
 
 POST /logout
 
@@ -32,7 +32,7 @@ Requires login
 
 no need for a request body
 
-#Send Message
+## Send Message
 
 POST /sendMessage
 
@@ -45,7 +45,7 @@ example request body:
     "message": "message",
 }
 
-#Ban a User
+## Ban a User
 
 POST /banUser 
 
@@ -57,7 +57,7 @@ example request body:
     "peer": "guest",
 }
 
-#Unban a User
+## Unban a User
 
 POST /unbanUser 
 
@@ -69,7 +69,7 @@ example request body:
     "peer": "guest",
 }
 
-#View past messages 
+## View past messages 
 
 GET /messages
 
