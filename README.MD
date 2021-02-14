@@ -2,6 +2,9 @@
 
 All post requests require "Content-Type" header set to "application/json"
 
+run 'docker-compose up' to start the service
+run 'docker-compose -f docker-compose-test up' to test the service. After testing remove the containers with 'docker-compose -f docker-compose-test rm -fsv'. Some test cases require empty database in order to succeed 
+
 #Sign up
 
 POST /signup 
